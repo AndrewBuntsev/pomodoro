@@ -1,0 +1,10 @@
+export const START_STOP_CLICKED = 'START_STOP_CLICKED';
+
+export const TICK = 'TICK';
+
+export const RESET = 'RESET';
+
+export const UPDATE_SESSION_LENGTH = 'UPDATE_SESSION_LENGTH';
+
+export const UPDATE_BREAK_LENGTH = 'UPDATE_BREAK_LENGTH';
+
