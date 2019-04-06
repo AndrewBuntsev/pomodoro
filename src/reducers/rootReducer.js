@@ -1,6 +1,7 @@
 import {defaultState} from '../store';
 import * as ActionTypes from '../const/actionTypes';
 import * as SystemStates from '../const/systemStates';
+import { StopBeep } from '../beepController';
 
 
 export default function rootReducer(state = defaultState, action){
@@ -30,18 +31,41 @@ export default function rootReducer(state = defaultState, action){
             return newState;
 
         case ActionTypes.RESET:
+            StopBeep();
             return defaultState;
 
         case ActionTypes.UPDATE_SESSION_LENGTH:
-            newState.sessionLength += parseInt(action.value);
+            if (newState.systemState !== SystemStates.SESSION && newState.systemState !== SystemStates.BREAK){
+                newState.sessionLength += parseInt(action.value);
+                if (newState.systemState === SystemStates.IDLE || newState.systemState === SystemStates.SESSION_PAUSE){
+                    newState.currentTime = newState.sessionLength;
+                }
+            }
             return newState;
 
         case ActionTypes.UPDATE_BREAK_LENGTH:
-            newState.breakLength += parseInt(action.value);
+            if (newState.systemState !== SystemStates.SESSION && newState.systemState !== SystemStates.BREAK){
+                newState.breakLength += parseInt(action.value);
+                if (newState.systemState === SystemStates.BREAK_PAUSE){
+                    newState.currentTime = newState.breakLength;
+                }
+            }
             return newState;
 
         case ActionTypes.TICK:
-            newState.currentTime --;
+            if (newState.currentTime === 0){
+                if (newState.systemState === SystemStates.SESSION){
+                    newState.systemState = SystemStates.BREAK;
+                    newState.currentTime = newState.breakLength;
+                }
+                else if (newState.systemState === SystemStates.BREAK){
+                    newState.systemState = SystemStates.SESSION;
+                    newState.currentTime = newState.sessionLength;
+                }
+            }
+            else{
+                newState.currentTime --;
+            }
             return newState;
 
         default:
